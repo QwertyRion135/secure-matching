@@ -1,0 +1,15 @@
+# Algorithm 3 on partial preference lists: same as alg3_naive.mpc, but the inputs are
+# score+1 (0 = unacceptable). Compile args: <n> [sweeps]
+
+n = int(program.args[1])
+sweeps = int(program.args[2]) if len(program.args) > 2 else n
+
+st = OSMState(n)
+st.read_inputs()
+st.shift_scores_down()
+
+@for_range(sweeps)
+def _(i):
+    proposal_sweep(st)
+
+st.reveal_matching()
