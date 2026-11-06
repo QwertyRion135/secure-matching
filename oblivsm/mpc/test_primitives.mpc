@@ -1,0 +1,31 @@
+# Checks of the primitives on constants. Prints "OBLIVSM_PRIM <name> <value>" lines
+# that tests/test_secure.py compares with the expected values.
+
+def report(name, secret_value):
+    print_ln('OBLIVSM_PRIM ' + name + ' %s', secret_value.reveal())
+
+report('lt_true',        secure_lt(sint(3), sint(5)))
+report('lt_false',       secure_lt(sint(5), sint(3)))
+report('lt_equal',       secure_lt(sint(3), sint(3)))
+report('lt_bot_below_0', secure_lt(sint(BOT), sint(0)))
+
+report('cond_select_x',  cond_assign(sint(1), sint(10), sint(20)))
+report('cond_select_y',  cond_assign(sint(0), sint(10), sint(20)))
+report('cond_public_x',  cond_assign(sint(1), 7, sint(20)))
+
+report('eq_true',        secure_eq(sint(4), 4))
+report('eq_false',       secure_eq(sint(4), 5))
+
+
+def flags(a, b, c):
+    arr = sint.Array(3)
+    arr[0] = sint(a)
+    arr[1] = sint(b)
+    arr[2] = sint(c)
+    return arr
+
+report('unmatched_none',   find_unmatched(flags(0, 0, 0)))
+report('unmatched_only_0', find_unmatched(flags(1, 0, 0)))
+report('unmatched_only_1', find_unmatched(flags(0, 1, 0)))
+report('unmatched_only_2', find_unmatched(flags(0, 0, 1)))
+report('unmatched_all',    find_unmatched(flags(1, 1, 1)))

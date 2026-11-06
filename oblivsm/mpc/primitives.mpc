@@ -1,0 +1,26 @@
+# Secure building blocks. Not compiled alone: src/oblivsm/mpspdz.py joins the .mpc files.
+
+BOT = -1   # "no partner" (the paper's bottom)
+
+
+def secure_lt(a, b):
+    return a < b
+
+
+def cond_assign(c, x, y):
+    """Paper Algorithm 2: x if the secret bit c is 1, else y."""
+    return c * (x - y) + y
+
+
+def secure_eq(x, public_value):
+    return x == public_value
+
+
+def find_unmatched(u_s):
+    """Algorithm 4 lines 5-11. Result is BOT iff no suitor is unmatched."""
+    v = sint(0)
+    m = sint(BOT)
+    for p in range(len(u_s)):
+        v = (1 - v) * u_s[p]
+        m = cond_assign(v, p, m)
+    return m

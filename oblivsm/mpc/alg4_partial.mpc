@@ -1,0 +1,38 @@
+# Algorithm 4 on partial preference lists. The paper's stopping rule never fires if someone
+# can't be matched, so we stop when a sweep makes no progress: the sum of the reviewers'
+# scores only grows, and grows whenever a proposal is accepted. Only the bit
+# "sum unchanged?" is opened. Compile args: <n>
+
+n = int(program.args[1])
+SAFETY_BOUND = n * n + 2   # never reached on valid input
+
+st = OSMState(n)
+st.read_inputs()
+st.shift_scores_down()
+
+sweep_count = regint.Array(1)
+sweep_count[0] = 0
+
+
+def reviewer_score_sum(state):
+    total = sint(0)
+    for k in range(state.n):
+        total += state.r_p[k]
+    return total
+
+
+@while_do(lambda x: x < SAFETY_BOUND, regint(0))
+def _(i):
+    total_before = reviewer_score_sum(st)
+    proposal_sweep(st)
+    sweep_count[0] = sweep_count[0] + 1
+    no_progress = secure_eq(reviewer_score_sum(st) - total_before, 0)
+
+    @if_(no_progress.reveal())
+    def _():
+        break_loop()
+
+    return i + 1
+
+print_ln('OBLIVSM_SWEEPS %s', sweep_count[0])
+st.reveal_matching()

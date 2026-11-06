@@ -1,0 +1,27 @@
+# Algorithm 4: optimized oblivious Gale-Shapley.
+# Same sweep as Algorithm 3, but stops once no suitor is unmatched; only that one bit is
+# opened each sweep. Compile args: <n>
+
+n = int(program.args[1])
+SAFETY_BOUND = n * n + 1   # never reached on valid input; just prevents an endless loop
+
+st = OSMState(n)
+st.read_inputs()
+
+sweep_count = regint.Array(1)
+sweep_count[0] = 0
+
+@while_do(lambda x: x < SAFETY_BOUND, regint(0))
+def _(i):
+    m = find_unmatched(st.u_s)
+
+    @if_(secure_eq(m, BOT).reveal())
+    def _():
+        break_loop()
+
+    proposal_sweep(st)
+    sweep_count[0] = sweep_count[0] + 1
+    return i + 1
+
+print_ln('OBLIVSM_SWEEPS %s', sweep_count[0])
+st.reveal_matching()
